@@ -33,6 +33,7 @@ var svg = d3.select("#map").append("svg")
     .append("g");
 
 d3.select("#map").on("click",  function() {
+    console.log("success");
   if(this.outerText == ""){
     previous = 'the World';
   }
