@@ -4,7 +4,7 @@
 //store all the routes
 var connect;
 
-//loading it
+//this is for the loading segment that displays while everything is loaded.
 var loading = document.getElementById("loading");
 
 //selection
@@ -33,7 +33,6 @@ var svg = d3.select("#map").append("svg")
     .append("g");
 
 d3.select("#map").on("click",  function() {
-    console.log("success");
   if(this.outerText == ""){
     previous = 'the World';
   }
