@@ -1,7 +1,7 @@
 //queue 
 (function(){function n(n){function t(){for(;f=a<c.length&&n>p;){var u=a++,t=c[u],r=l.call(t,1);r.push(e(u)),++p,t[0].apply(null,r)}}function e(n){return function(u,l){--p,null==d&&(null!=u?(d=u,a=s=0/0,r()):(c[n]=l,--s?f||t():r()))}}function r(){null!=d?v(d):i?v(d,c):v.apply(null,[d].concat(c))}var o,f,i,c=[],a=0,p=0,s=0,d=null,v=u;return n||(n=1/0),o={defer:function(){return d||(c.push(arguments),++s,t()),o},await:function(n){return v=n,i=!1,s||r(),o},awaitAll:function(n){return v=n,i=!0,s||r(),o}}}function u(){}"undefined"==typeof module?self.queue=n:module.exports=n,n.version="1.0.4";var l=[].slice})();
 
-//store all the routes
+//store all the flight routes
 var connect;
 
 //this is for the loading segment that displays while everything is loaded.
@@ -16,40 +16,51 @@ var previous = 'the World';
 var width  = "100%",
     height = "100%";
 
+//color the maps with ordinal scale function
 var color = d3.scale.category10();
 
+//create the map projection
 var projection = d3.geo.mercator()
                 .translate([400, 270])
                 .scale(800);
 
+//create the geographic data
 var path = d3.geo.path().projection(projection);
-
+//draw the arcs
 var arc = d3.geo.greatArc().precision(3);
 
+//append the finished map
 var svg = d3.select("#map").append("svg")
     .attr("width", width)
     .attr("height", height)
+    //zoom 
     .call(d3.behavior.zoom().scaleExtent([1,10]).on("zoom", redraw))
     .append("g");
 
+// Interaction with the map, if nothing has been selected, 
+// it will show all direct flights from your selected country to other countries in the world
 d3.select("#map").on("click",  function() {
   if(this.outerText == ""){
     previous = 'the World';
   }
 });
 
+//redraws the map when moving/zooming the map
 function redraw() {
     svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 }
 
+//the tooltip when you hover over the countries (gives country names, name of flight nodes)
 var tooltip = d3.select("#map").append("div")
     .attr("class", "tooltip");
 
+//this is where the loading comes in, load in the map and country name data and boot up the map when it's loaded
 queue()
     .defer(d3.json, "data/world-110m.json")
     .defer(d3.tsv, "data/country-names.tsv")
     .await(ready);
 
+// interaction with the map happens here.
 function ready(error, world, names) {
 
   var countries = topojson.object(world, world.objects.countries).geometries,
@@ -148,19 +159,31 @@ function ready(error, world, names) {
       if(previous == 'the World'){
         var objs = world(current);
         process(objs);
-      } else {
+      } 
+      
+      else {
         //show country to country or internal
         var objs = connect(previous, current);
         process(objs);
       }
 
-      selection.innerHTML = 'Direct flights from '+ current +' to '+previous;
+        //if the flight is domestic
+        if(current == previous && previous == current){
+        selection.innerHTML = 'Direct Domestic flights in '+ current;
+        }
+        
+        //if the flight is to another country
+        else{
+          selection.innerHTML = 'Direct flights from '+ current +' to '+ previous;
+        }
+
 
       //update previous to current
       previous = current;
     }, 100);
   }
 
+  //gets the data of the countries or country that was selected and inserts it into a table
   function process(objs){
 
         //setup the table
@@ -204,7 +227,7 @@ function ready(error, world, names) {
         });
 
 
-        //make table sortable: http://www.kryogenix.org/code/browser/sorttable/#ajaxtables
+        //make table sortable using sorttable.js
         var newTable = document.getElementsByTagName("table")[0];
         sorttable.makeSortable(newTable);
 
