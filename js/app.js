@@ -282,7 +282,7 @@ function ready(error, world, names) {
     }
   }
 
-
+  // appending the nodes representing airports to the map.
   function appendPoint(x,y,name,radius,theclass) {
 
     svg.append("svg:circle")
